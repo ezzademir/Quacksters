@@ -15,7 +15,8 @@ export default defineConfig({
     command:
       process.env.CI === 'true'
         ? 'npm run preview -- --host 127.0.0.1 --strictPort --port 4173'
-        : 'npm run build && npm run preview -- --host 127.0.0.1 --strictPort --port 4173',
+        : // Root base so deep links like /login resolve assets correctly (matches CI).
+          'VITE_BASE_PATH=/ npm run build && npm run preview -- --host 127.0.0.1 --strictPort --port 4173',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

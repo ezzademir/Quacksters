@@ -162,7 +162,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = client.auth.onAuthStateChange((_event, nextSession) => {
+    } = client.auth.onAuthStateChange((event, nextSession) => {
+      if (event === 'PASSWORD_RECOVERY' && typeof window !== 'undefined') {
+        window.location.hash = '#/recover-password'
+      }
       setSession(nextSession)
       if (nextSession?.user.id) {
         void loadUserData(nextSession.user.id).catch((err) => {

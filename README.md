@@ -131,6 +131,8 @@ Open the URL shown in the terminal (usually `http://localhost:5173`).
 
 The workflow [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml) builds the Vite SPA and publishes **`dist/`** to **GitHub Pages** on every push to `main` or `master` (and can be run manually via **Actions → Deploy GitHub Pages → Run workflow**).
 
+**This repository (project site):** the live app is at **[https://ezzademir.github.io/Quacksters/](https://ezzademir.github.io/Quacksters/)**. The app uses **`HashRouter`**, so routes look like `https://ezzademir.github.io/Quacksters/#/login` (not `/Quacksters/login` — that avoids GitHub Pages **404** on refresh and deep links).
+
 ### One-time repository setup
 
 1. Push this repository to GitHub.
@@ -160,12 +162,16 @@ If **`VITE_SUPABASE_ANON_KEY`** is missing, the Pages build still succeeds but t
 
 ### Supabase redirect URLs
 
-In the Supabase Dashboard → **Authentication → URL configuration**, allow your Pages origin (e.g. `https://owner.github.io/repo/` and variants Supabase lists).
+In the Supabase Dashboard → **Authentication → URL configuration**, allow the **site URL** (and redirect URLs) Supabase will send users to. This app uses **`HashRouter`** and password-reset emails use the **SPA root** as `redirect_to` (Supabase then appends `#access_token=...&type=recovery`). The app listens for **`PASSWORD_RECOVERY`** and navigates to **`#/recover-password`**.
 
-Password reset emails redirect to **`.../recover-password`** (built from your deployed origin + `VITE_BASE_PATH`). Add explicit allowlist entries if needed, for example:
+Add explicit allowlist entries for this repo, for example:
 
-- `https://owner.github.io/repo/recover-password`
-- `http://127.0.0.1:5173/recover-password` (local Vite dev, if testing reset mail there)
+- `https://ezzademir.github.io/Quacksters/`
+- `http://localhost:5173/` (local Vite dev, if testing reset mail there)
+
+Do **not** rely on path-only URLs like `/Quacksters/recover-password` for email redirects; GitHub Pages would **404** on those without hash routing.
+
+After reset, users complete the flow at **`.../Quacksters/#/recover-password`** inside the SPA.
 
 ### APK vs Pages
 

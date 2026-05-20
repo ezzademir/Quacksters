@@ -4,27 +4,24 @@ import { formatAuthErrorMessage } from '../../lib/authErrors'
 import { requireSupabase } from '../../lib/supabase'
 import { SupabaseBackendHint } from './SupabaseBackendHint'
 
-function hashIndicatesRecovery(): boolean {
-  if (typeof window === 'undefined') return false
-  const raw = window.location.hash.replace(/^#/, '')
-  if (!raw) return false
-  const params = new URLSearchParams(raw)
-  return params.get('type') === 'recovery'
-}
-
 export function RecoverPasswordScreen() {
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [allowReset, setAllowReset] = useState(() => hashIndicatesRecovery())
+  const [allowReset, setAllowReset] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
-    if (hashIndicatesRecovery()) setAllowReset(true)
-
     const client = requireSupabase()
+    let canceled = false
+
+    void client.auth.getSession().then(({ data }) => {
+      if (canceled) return
+      if (data.session) setAllowReset(true)
+    })
+
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event) => {
@@ -34,6 +31,7 @@ export function RecoverPasswordScreen() {
     const timer = window.setTimeout(() => setTimedOut(true), 15_000)
 
     return () => {
+      canceled = true
       subscription.unsubscribe()
       window.clearTimeout(timer)
     }

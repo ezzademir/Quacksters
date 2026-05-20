@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { OutletsProvider } from './context/OutletsContext'
 import { ProgrammeContentProvider } from './context/ProgrammeContentContext'
@@ -265,17 +265,11 @@ function AppWithProviders() {
   )
 }
 
-function routerBasename(): string | undefined {
-  const urlBase = import.meta.env.BASE_URL
-  if (urlBase === '/' || urlBase === './') return undefined
-  return urlBase.endsWith('/') ? urlBase.slice(0, -1) : urlBase
-}
-
 function App() {
   return (
-    <BrowserRouter basename={routerBasename()}>
+    <HashRouter>
       <AppWithProviders />
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

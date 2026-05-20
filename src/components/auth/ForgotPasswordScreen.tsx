@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { normalizeAuthEmail } from '../../lib/authEmail'
 import { formatAuthErrorMessage } from '../../lib/authErrors'
-import { absoluteAppUrl } from '../../lib/siteUrl'
+import { absoluteAppRootUrl } from '../../lib/siteUrl'
 import { requireSupabase } from '../../lib/supabase'
 import { SupabaseBackendHint } from './SupabaseBackendHint'
 
@@ -24,7 +24,7 @@ export function ForgotPasswordScreen() {
     setIsSubmitting(true)
     try {
       const client = requireSupabase()
-      const redirectTo = absoluteAppUrl('/recover-password')
+      const redirectTo = absoluteAppRootUrl()
       const { error: resetError } = await client.auth.resetPasswordForEmail(
         normalized,
         { redirectTo },

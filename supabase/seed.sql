@@ -1,0 +1,6 @@
+-- Run after creating your first admin user in Supabase Auth dashboard.
+-- Replace the email below, sign up that user, then run:
+--
+-- UPDATE public.profiles
+-- SET access_role = 'admin', full_name = 'System Admin'
+-- WHERE id = (SELECT id FROM auth.users WHERE email = 'admin@quackteow.com');

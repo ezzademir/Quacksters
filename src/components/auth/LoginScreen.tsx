@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { LogIn } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { authConfigurationMismatch } from '../../lib/supabase'
 import { SupabaseBackendHint } from './SupabaseBackendHint'
 
 export function LoginScreen() {
@@ -56,6 +57,15 @@ export function LoginScreen() {
           onSubmit={handleSubmit}
           className="space-y-4 rounded-3xl bg-white p-5 shadow-xl"
         >
+          {authConfigurationMismatch && (
+            <p
+              className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-950 ring-1 ring-amber-800/15"
+              role="status"
+            >
+              <span className="font-semibold">Configuration issue: </span>
+              {authConfigurationMismatch}
+            </p>
+          )}
           {error && (
             <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}

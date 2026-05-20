@@ -194,7 +194,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: normalizedEmail,
         password,
       })
-      if (error) return { error: formatAuthErrorMessage(error) }
+      if (error) {
+        console.warn('[auth] signInWithPassword', error.code, error.message)
+        return { error: formatAuthErrorMessage(error) }
+      }
 
       const { data: userData } = await client.auth.getUser()
       if (userData.user) {

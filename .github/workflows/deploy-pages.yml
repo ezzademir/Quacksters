@@ -22,6 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Public project URL — used when VITE_SUPABASE_URL secret is unset (never put the anon key here).
+      - name: Check Supabase anon secret
+        env:
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "::warning title=VITE_SUPABASE_ANON_KEY missing::Pages will ship without Supabase. Add repository secret VITE_SUPABASE_ANON_KEY (Dashboard → API → anon JWT, eyJ...). Optional: secret VITE_SUPABASE_URL to override the default project URL."
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -40,11 +49,15 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - name: Build SPA (Supabase URL defaults to Quacksters project)
         env:
+          DEFAULT_VITE_SUPABASE_URL: https://oivsccsntugiprfdnypn.supabase.co
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_BASE_PATH: ${{ steps.pages_base.outputs.vite_base }}
+        run: |
+          export VITE_SUPABASE_URL="${VITE_SUPABASE_URL:-$DEFAULT_VITE_SUPABASE_URL}"
+          npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:

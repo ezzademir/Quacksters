@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { LogIn } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { SupabaseBackendHint } from './SupabaseBackendHint'
 
 export function LoginScreen() {
   const { signIn, isConfigured } = useAuth()
@@ -87,6 +88,12 @@ export function LoginScreen() {
             />
           </label>
 
+          <p className="text-right text-sm">
+            <Link to="/forgot-password" className="font-semibold text-brand-700">
+              Forgot password?
+            </Link>
+          </p>
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -102,6 +109,7 @@ export function LoginScreen() {
               Register
             </Link>
           </p>
+          <SupabaseBackendHint />
         </form>
       </div>
     </div>

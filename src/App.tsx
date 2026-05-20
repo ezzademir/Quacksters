@@ -9,7 +9,9 @@ import { DashboardView } from './components/dashboard/DashboardView'
 import { TasksView } from './components/tasks/TasksView'
 import { ResourcesView } from './components/resources/ResourcesView'
 import { WelcomeScreen } from './components/onboarding/WelcomeScreen'
+import { ForgotPasswordScreen } from './components/auth/ForgotPasswordScreen'
 import { LoginScreen } from './components/auth/LoginScreen'
+import { RecoverPasswordScreen } from './components/auth/RecoverPasswordScreen'
 import { RegisterScreen } from './components/auth/RegisterScreen'
 import { PendingApprovalScreen } from './components/auth/PendingApprovalScreen'
 import { PasswordResetScreen } from './components/auth/PasswordResetScreen'
@@ -151,7 +153,11 @@ function AppRoutes() {
       <Route element={<RequireGuest />}>
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
       </Route>
+
+      {/* Recovery links establish a session; must not use RequireGuest (would bounce away). */}
+      <Route path="/recover-password" element={<RecoverPasswordScreen />} />
 
       <Route element={<RequireAuth />}>
         <Route path="/pending" element={<PendingApprovalScreen />} />

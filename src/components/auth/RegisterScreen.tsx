@@ -4,6 +4,7 @@ import { UserPlus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useOutlets } from '../../context/OutletsContext'
 import type { RoleFilter } from '../../types/onboarding'
+import { SupabaseBackendHint } from './SupabaseBackendHint'
 
 const jobRoles: { value: RoleFilter; label: string }[] = [
   { value: 'cook', label: 'Cook' },
@@ -166,6 +167,7 @@ export function RegisterScreen() {
               Sign in
             </Link>
           </p>
+          <SupabaseBackendHint />
         </form>
       </div>
     </div>

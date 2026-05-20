@@ -135,11 +135,19 @@ The workflow [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages
 
 1. Push this repository to GitHub.
 2. **Settings → Pages → Build and deployment:** set **Source** to **GitHub Actions** (not “Deploy from a branch”).
-3. **Settings → Secrets and variables → Actions** — add repository secrets (same values as local `.env`; **anon** key only — never `service_role`):
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
+3. **Settings → Secrets and variables → Actions** — add **`VITE_SUPABASE_ANON_KEY`**:
+   - Copy **anon `public`** from Supabase Dashboard → **Project Settings → API**. Use the **JWT** value starting with **`eyJ`** (same as local `.env`). Never **`service_role`**, never commit keys into git.
+   - **`VITE_SUPABASE_URL`** is optional for Pages: [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml) defaults to **`https://oivsccsntugiprfdnypn.supabase.co`**. Add this secret only if the deployed site should use a **different** Supabase project than that URL.
 
-If secrets are missing, the build still succeeds but the deployed site runs without Supabase ([offline behaviour](#supabase-setup)).
+Set the anon key from your machine with [GitHub CLI](https://cli.github.com/) (prompt hides input):
+
+```bash
+gh secret set VITE_SUPABASE_ANON_KEY
+```
+
+If **`VITE_SUPABASE_ANON_KEY`** is missing, the Pages build still succeeds but the site runs without Supabase ([offline behaviour](#supabase-setup)); the workflow prints a **warning**.
+
+**Confirm the live site:** open **Sign in**. Under the form, **Backend:** should match **Project URL** in the dashboard (`oivsccsntugiprfdnypn.supabase.co` for the default URL).
 
 ### Published URL
 
@@ -153,6 +161,11 @@ If secrets are missing, the build still succeeds but the deployed site runs with
 ### Supabase redirect URLs
 
 In the Supabase Dashboard → **Authentication → URL configuration**, allow your Pages origin (e.g. `https://owner.github.io/repo/` and variants Supabase lists).
+
+Password reset emails redirect to **`.../recover-password`** (built from your deployed origin + `VITE_BASE_PATH`). Add explicit allowlist entries if needed, for example:
+
+- `https://owner.github.io/repo/recover-password`
+- `http://127.0.0.1:5173/recover-password` (local Vite dev, if testing reset mail there)
 
 ### APK vs Pages
 

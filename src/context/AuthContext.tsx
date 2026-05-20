@@ -20,6 +20,8 @@ import {
   canManageUsers,
   isApprovedUser,
 } from '../lib/permissions'
+import { normalizeAuthEmail } from '../lib/authEmail'
+import { formatAuthErrorMessage } from '../lib/authErrors'
 import { isSupabaseConfigured, requireSupabase } from '../lib/supabase'
 
 interface AuthContextValue {
@@ -182,8 +184,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       const client = requireSupabase()
-      const { error } = await client.auth.signInWithPassword({ email, password })
-      if (error) return { error: error.message }
+      const normalizedEmail = normalizeAuthEmail(email)
+      const { error } = await client.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      })
+      if (error) return { error: formatAuthErrorMessage(error) }
 
       const { data: userData } = await client.auth.getUser()
       if (userData.user) {
@@ -224,22 +230,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }) => {
       try {
         const client = requireSupabase()
+        const normalizedEmail = normalizeAuthEmail(input.email)
         const { data, error } = await client.auth.signUp({
-          email: input.email,
+          email: normalizedEmail,
           password: input.password,
           options: {
             data: { full_name: input.fullName },
           },
         })
 
-        if (error) return { error: error.message }
+        if (error) return { error: formatAuthErrorMessage(error) }
         if (!data.user) return { error: 'Registration failed' }
 
         const { error: pendingError } = await client
           .from('pending_registrations')
           .insert({
             user_id: data.user.id,
-            email: input.email,
+            email: normalizedEmail,
             full_name: input.fullName,
             requested_outlet: input.requestedOutlet || null,
             requested_job_role: input.requestedJobRole || null,

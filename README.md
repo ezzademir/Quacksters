@@ -151,6 +151,8 @@ If **`VITE_SUPABASE_ANON_KEY`** is missing, the Pages build still succeeds but t
 
 **Confirm the live site:** open **Sign in**. Under the form, **Backend:** should match **Project URL** in the dashboard (`oivsccsntugiprfdnypn.supabase.co` for the default URL).
 
+**If every login shows “does not match our records”:** the build is almost certainly using a bad **`VITE_SUPABASE_ANON_KEY`** (GitHub Secret). Paste the **anon `public` JWT** (`eyJ…`) from **Dashboard → API** again — no wrapping quotes, no line breaks. **Publishable** `sb_publishable_` keys often fail with password auth and RLS. After updating the secret, run **Deploy GitHub Pages** again and hard-refresh the site (or clear site data for `github.io`). The app also clears a broken local session before each sign-in attempt.
+
 ### Published URL
 
 | Repository type | Example URL | `VITE_BASE_PATH` in CI |

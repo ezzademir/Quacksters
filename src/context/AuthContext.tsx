@@ -187,6 +187,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       const client = requireSupabase()
+      // Clear a corrupted or mismatched local session (e.g. after rotating anon key in GitHub Secrets).
+      await client.auth.signOut({ scope: 'local' })
       const normalizedEmail = normalizeAuthEmail(email)
       const { error } = await client.auth.signInWithPassword({
         email: normalizedEmail,

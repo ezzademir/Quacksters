@@ -31,6 +31,21 @@ jobs:
             echo "::warning title=VITE_SUPABASE_ANON_KEY missing::Pages will ship without Supabase. Add repository secret VITE_SUPABASE_ANON_KEY (Dashboard → API → anon JWT, eyJ...). Optional: secret VITE_SUPABASE_URL to override the default project URL."
           fi
 
+      - name: Validate VITE_SUPABASE_ANON_KEY format
+        env:
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            exit 0
+          fi
+          case "$VITE_SUPABASE_ANON_KEY" in
+            eyJ*)
+              ;;
+            *)
+              echo "::warning title=Check Supabase anon key::Repository secret VITE_SUPABASE_ANON_KEY should be the legacy anon JWT from Supabase Dashboard → API (starts with eyJ). Publishable sb_ keys often break password + RLS flows. Remove stray quotes or newlines when pasting the secret."
+              ;;
+          esac
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

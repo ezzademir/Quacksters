@@ -195,7 +195,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       })
       if (error) {
-        console.warn('[auth] signInWithPassword', error.code, error.message)
+        console.warn('[auth] signInWithPassword', {
+          code: error.code,
+          status: error.status,
+          message: error.message,
+        })
         return { error: formatAuthErrorMessage(error) }
       }
 

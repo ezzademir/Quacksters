@@ -34,3 +34,7 @@ test-results/
 *.njsproj
 *.sln
 *.sw?
+
+# iOS build output
+ios/output/
+ios/build/

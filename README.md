@@ -2,7 +2,7 @@
 
 Mobile onboarding companion for **Quackteow Group** staff, based on QT-HR-OPS-001 (30 · 60 · 90 Day Integration Programme).
 
-Built with **React**, **TypeScript**, **Tailwind CSS**, and **Capacitor** for Android.
+Built with **React**, **TypeScript**, **Tailwind CSS**, and **Capacitor** for Android and iOS.
 
 ## Features
 
@@ -15,7 +15,7 @@ Built with **React**, **TypeScript**, **Tailwind CSS**, and **Capacitor** for An
 - Progress synced to Supabase (with local offline cache on device)
 - Resource hub with SOP links
 - Milestone reminders (Day 7, 15, 30, 45, 60, 90)
-- Native Android shell with splash screen, status bar, and haptics
+- Native Android and iOS shells with splash screen, status bar, and haptics
 
 ## Supabase setup
 
@@ -125,6 +125,8 @@ Open the URL shown in the terminal (usually `http://localhost:5173`).
 | `npm run test` | Vitest unit tests |
 | `npm run test:e2e` | Playwright smoke test (starts preview server) |
 | `./scripts/run-android.sh` | Clean + `installDebug` + launch MainActivity (needs `adb device`) |
+| `./scripts/run-ios.sh` | Sync + build for iOS Simulator + open Xcode (needs full Xcode) |
+| `npm run cap:ios` | Build, sync, and open the iOS project in Xcode |
 | `npm run generate:programme-seed` | Regenerate programme seed SQL from mock data |
 
 ## Deploy web app (GitHub Pages)
@@ -152,6 +154,8 @@ If **`VITE_SUPABASE_ANON_KEY`** is missing, the Pages build still succeeds but t
 **Confirm the live site:** open **Sign in**. Under the form, **Backend:** should match **Project URL** in the dashboard (`oivsccsntugiprfdnypn.supabase.co` for the default URL).
 
 **If every login shows “does not match our records”:** the build is almost certainly using a bad **`VITE_SUPABASE_ANON_KEY`** (GitHub Secret). Paste the **anon `public` JWT** (`eyJ…`) from **Dashboard → API** again — no wrapping quotes, no line breaks. **Publishable** `sb_publishable_` keys often fail with password auth and RLS. After updating the secret, run **Deploy GitHub Pages** again and hard-refresh the site (or clear site data for `github.io`). The app also clears a broken local session before each sign-in attempt.
+
+**Seeing `400 (Bad Request)` on `…/auth/v1/token?grant_type=password` in DevTools:** that HTTP status is normal when GoTrue rejects a password grant (wrong password, unconfirmed email, captcha required, etc.). Open the failed request in **Network → Response** and read the JSON (`error`, `error_code`, `msg`) — that is the authoritative reason, not the status code alone.
 
 If the **URL** secret and **anon key** secret are from **different** Supabase projects, the sign-in page shows an **amber “Configuration issue”** banner and the browser console logs `[auth]` details — fix secrets so both come from the **same** project.
 
@@ -224,6 +228,42 @@ cd android && ./gradlew installDebug
 adb shell am start -n com.quackteow.onboarding/.MainActivity
 ```
 
+## iOS development
+
+Step-by-step from clone to running on simulator or device: **[docs/ios-walkthrough.md](docs/ios-walkthrough.md)**. With full Xcode installed, **`./scripts/run-ios.sh`** syncs web assets, builds for the default simulator, and opens the project.
+
+### Prerequisites
+
+- **Xcode** from the Mac App Store (not Command Line Tools alone)
+- Apple ID for signing (free account works for device testing)
+
+Point the active developer tools at Xcode:
+
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+```
+
+### Sync web build to iOS
+
+```bash
+npm run cap:sync
+```
+
+### Open in Xcode
+
+```bash
+npm run cap:ios
+```
+
+### Run on simulator or device
+
+1. Open **`ios/App/App.xcodeproj`** in Xcode (or use `npm run cap:ios`).
+2. Select a simulator or connected iPhone.
+3. Under **Signing & Capabilities**, choose your **Team**.
+4. Press **Run** (▶).
+
+For TestFlight or App Store distribution, use **Product → Archive** in Xcode.
+
 ## Release build
 
 1. Generate a signing keystore:
@@ -256,7 +296,7 @@ For Play Store, use `./gradlew bundleRelease` to produce an AAB.
 |-------|-------|
 | App name | Quacksters |
 | Package ID | `com.quackteow.onboarding` |
-| Version | 1.0.0 (versionCode 2) |
+| Version | 1.0.0 (Android versionCode / iOS build 2) |
 
 ## Project structure
 
@@ -276,7 +316,8 @@ supabase/
 ├── migrations/     # Database schema + RLS + programme RPCs
 └── seed.sql        # Bootstrap admin instructions
 android/            # Capacitor Android project
-scripts/            # android-env.sh, run-android.sh, generate-keystore.sh, generate-programme-seed.mjs
+ios/                # Capacitor iOS project
+scripts/            # android-env.sh, run-android.sh, run-ios.sh, generate-keystore.sh, generate-programme-seed.mjs
 ```
 
 ## CI
